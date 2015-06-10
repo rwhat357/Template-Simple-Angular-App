@@ -3,6 +3,6 @@ Simple starting template to start building angular apps or to test angular apps 
 
 #How to set it up on your local machine to start developing apps?
 - install Nodejs
-- npm grunt-cli
+- `npm grunt-cli -g`
 - clone the repo
 - run `grunt` to kick off the page on the server with livereload
