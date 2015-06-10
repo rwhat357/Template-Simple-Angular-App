@@ -1,0 +1,170 @@
+<div class="support-query-admin" class="">
+    <div class="container-fluid">
+        <div class="h2 row">
+            Support Query Administration<span ng-show="configuring">: {{configuring.name}}</span>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input id="wrapperFilter" type="text" class="form-control" placeholder="Filter" ng-model="search.name" />
+                        <label class="sr-only" for="wrapperFilter">Filter</label>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="search=null"><span class="glyphicon glyphicon-remove"></span></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="wrapper-list">
+                    <ul class="list-group">
+                        <a ng-repeat="wrapper in wrappers | orderBy: ['-parametersMisconfigured', '-!!id', '-available', 'name'] | filter:search" class="list-group-item wrapper-link-item" ng-class="{'active': configuring.name==wrapper.name, 'list-group-item-success': !!wrapper.id, 'list-group-item-warning': !!wrapper.id && !wrapper.available, 'list-group-item-danger': wrapper.parametersMisconfigured}" ng-click="setConfiguring(wrapper)" rel="tooltip" data-placement="bottom" data-title="{{wrapper.friendlyName}}">
+                            {{wrapper.name}}
+                            <span class="label label-danger" ng-show="wrapper.parametersMisconfigured">Param mismatch</span>
+                            <span class="pull-right" ng-show="wrapper.loading">
+                                <span class="wrapper-loading glyphicon glyphicon-refresh"></span>
+                            </span>
+                        </a>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="container-fluid" ng-show="!!configuring">
+                    <div class="row">
+                        <div class="text-right col-sm-12" ng-hide="error || loading">
+                            <a class="btn btn-default" ng-show="!!configuring.id && configuring.available && configuring.roles.length > 0" ui-sref="supportQuery.details({name:configuring.name})">Execute</a>
+                            <a class="btn btn-danger" ng-show="!!configuring.id" ng-really-message="Are you sure want to delete the config for {{configuring.name}}?" ng-really-click="delete()">Delete Config</a>
+                            <a class="btn btn-primary" linked="formSubmitButton">Configure</a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                            <form name="queryForm" ng-submit="save()">
+                                <div class="col-sm-12">
+                                    <input type="submit" id="formSubmitButton" hidden/>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div class="form-horizontal">
+
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">{{configuring.name}}</div>
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <label class="control-label col-lg-3 col-sm-4 ">Friendly Name</label>
+                                                    <div class="col-lg-9 col-sm-8">
+                                                        <input type="text" class="form-control" ng-model="configuring.friendlyName" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label col-lg-3 col-sm-4">Description</label>
+                                                    <div class="col-lg-9 col-sm-8">
+                                                       <textarea class="form-control" ng-model="configuring.description"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">Availability</div>
+
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <div class="col-lg-offset-3 col-lg-9 col-sm-offset-4 col-sm-8">
+                                                      <div class="checkbox">
+                                                        <label>
+                                                          <input type="checkbox" ng-model="configuring.available"> Available
+                                                        </label>
+                                                      </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label col-lg-3 col-sm-4">Roles</label>
+                                                    <div class="col-lg-9 col-sm-8">
+                                                        <ul class="list-group" >
+                                                            <li class="list-group-item" ng-show="configuring.roles.length == 0">None</li>
+                                                            <div ng-show="configuring.roles.length > 0">
+                                                                <li ng-repeat="role in configuring.roles | orderBy: 'name'" class="list-group-item">{{role.name}}</li>
+                                                            </div>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                Configurable Parameters <span class="label label-danger" ng-show="configuring.parametersMisconfigured">Actual parameters don't match configured parameters. Please reconfigure!</span>
+                                                <span class="pull-right" ng-show="configuring.loading">
+                                                    <span class="wrapper-loading glyphicon glyphicon-refresh"></span>
+                                                </span>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="parameter-list">
+                                                    <div ng-repeat="param in configuring.parameters">
+                                                        <div class="form-group">
+                                                            <label class="control-label col-lg-3 col-sm-4 ">Position</label>
+                                                            <div class="form-control-static col-lg-9 col-sm-8">
+                                                                {{param.ordinalPosition}}
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <div class="col-lg-offset-3 col-lg-9 col-sm-offset-4 col-sm-8">
+                                                              <div class="checkbox">
+                                                                <label>
+                                                                  <input type="checkbox" ng-model="param.sortToTop"> Sort to top
+                                                                </label>
+                                                              </div>
+                                                          </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label col-lg-3 col-sm-4 ">Name</label>
+                                                            <div class="form-control-static col-lg-9 col-sm-8">
+                                                                {{param.name}}
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label col-lg-3 col-sm-4 ">Data Type</label>
+                                                            <div class="form-control-static col-lg-9 col-sm-8">
+                                                                {{param.dataType}}
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label col-lg-3 col-sm-4 ">Description</label>
+                                                            <div class="col-lg-9 col-sm-8">
+                                                                <textarea class="form-control" ng-model="param.description" ></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label col-lg-3 col-sm-4 ">Default Value</label>
+                                                            <div class="col-lg-9 col-sm-8">
+                                                                <div class="input-group">
+                                                                    <input type="number" ignore-mouse-wheel class="form-control" ng-model="param.defaultValue" placeholder="number" ng-if="['bit','int','float','smallint','tinyint'].indexOf(param.dataType) > -1"/>
+                                                                    <input type="text" class="form-control" ng-model="param.defaultValue" placeholder="string" ng-if="['char','nvarchar','varchar'].indexOf(param.dataType) > -1"/>
+                                                                    <input type="date" ignore-mouse-wheel class="form-control" ng-model="param.defaultValue" ng-if="param.dataType == 'datetime'"/>
+                                                                    
+                                                                    <span class="input-group-btn">
+                                                                        <button class="btn btn-default" type="button" ng-click="param.defaultValue=null"><span class="glyphicon glyphicon-remove"></span></button>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <hr ng-show="configuring.parameters.length > $index + 1"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
