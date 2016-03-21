@@ -5,4 +5,5 @@ Simple starting template to start building angular apps or to test angular apps 
 - install Nodejs
 - `npm install -g grunt-cli`
 - clone the repo
-- run `grunt` to kick off the page on the server with livereload
+- install project dependencies with `npm install`
+- run `grunt dev` to kick off the page on the server with livereload
